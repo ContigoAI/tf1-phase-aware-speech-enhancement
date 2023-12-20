@@ -7,13 +7,9 @@ Paper url - https://openreview.net/pdf?id=SkeRTsAcYm.
 
 - [Overview](#overview)
 - [Requirements](#requirements)
-- [Usage](#usage)
-- [Data Preparation](#data-preparation)
+- [Preparation](#preparation)
 - [Training](#training)
-- [Evaluation](#evaluation)
-- [Results](#results)
-- [Contributing](#contributing)
-- [License](#license)
+- [Lisence](#lisence)
 
 ## Overview
 
