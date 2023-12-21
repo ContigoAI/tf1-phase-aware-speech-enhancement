@@ -25,9 +25,11 @@ def make_train_op(X, y_pred, y_true, flags, additional_loss_input):
     Returns:
         Tuple containing the training operation and the loss tensor.
     """
+    # Loss Calculation:
     loss = weighted_sdr_loss(X, y_pred, y_true)
     tf.summary.scalar("weighted_sdr_loss", loss)
 
+    # MSE Loss
     if additional_loss_input is not None:
         frame_step = flags.stft_freq_samples - flags.noverlap - 2
         stft_true = tf.contrib.signal.stft(y_true, frame_length=flags.stft_freq_samples, frame_step=frame_step)
@@ -36,6 +38,7 @@ def make_train_op(X, y_pred, y_true, flags, additional_loss_input):
         loss += mag_loss
         tf.summary.scalar("mag_loss", mag_loss)
 
+    # Global Step and Learning Rate Decay
     global_step = tf.train.get_or_create_global_step()
     tf.summary.scalar("global_step", global_step)
 
@@ -45,6 +48,8 @@ def make_train_op(X, y_pred, y_true, flags, additional_loss_input):
                                               flags.fs, end_learning_rate,
                                               power=0.5)
     tf.summary.scalar("learning_rate", learning_rate)
+
+    # Optimizer and Minimization
     optim = tf.train.AdamOptimizer(learning_rate=learning_rate)
     return optim.minimize(loss, global_step=global_step), loss
 
@@ -103,6 +108,8 @@ def main():
 
     # Get training and validation data
     iterator, train_images_tf, valid_images_tf, train_size, valid_size = get_train_data(flags)
+    n_batches_train = int(train_size // flags.batch_size)
+    n_batches_valid = int(valid_size // flags.batch_size)
 
     # Define input placeholders and build the UNET model
     X, y = iterator.get_next()
@@ -167,16 +174,13 @@ def main():
             sess.run(iterator.make_initializer(ds))
             sess.run(tf.local_variables_initializer())
 
-            mean_loss, train_count = 0, 0
-            n_batches_train = (int(train_size / flags.batch_size) + 1)
-
             # Iterate through batches
+            mean_loss = 0
             for i in range(n_batches_train):
                 try:
                     _, l, step_summary, global_step_value, predicted = sess.run(
                         [train_op, loss, summary_op, global_step, pred],
                         feed_dict={mode: True})
-                    train_count += 1
                     mean_loss += l
                     loss_arr.append(l)
 
@@ -184,17 +188,15 @@ def main():
                     msg = 'Finished epoch with expectation {}'.format(e)
                     print(msg)
 
-            mean_loss = flags.batch_size * (mean_loss / (train_count + 1))
+            mean_loss /= n_batches_train
             loss_train_arr.append(mean_loss)
 
             # Initialize validation dataset
             sess.run(iterator.make_initializer(valid_images_tf))
             sess.run(tf.local_variables_initializer())
 
-            mean_valid_loss = 0
-            n_batches_valid = int(valid_size / flags.batch_size) + 1
-
             # Iterate through validation batches
+            mean_valid_loss = 0
             for i in range(n_batches_valid):
                 try:
                     predicted, l, step_summary = sess.run([pred, loss, summary_op],feed_dict={mode: True})
@@ -204,7 +206,7 @@ def main():
                     msg = "finished epoch with exception {}".format(e)
                     print(msg)
 
-            mean_valid_loss = flags.batch_size * (mean_valid_loss / (valid_size + 1))
+            mean_valid_loss /= n_batches_valid
             loss_valid_arr.append(mean_valid_loss)
             msg = "Finished epoch :{} at {}. {}".format(epoch,datetime.datetime.now(),mean_valid_loss)
             print(msg)
