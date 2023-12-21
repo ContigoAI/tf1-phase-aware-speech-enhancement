@@ -6,7 +6,7 @@ This repository contains a TensorFlow 1.15 implementation of a phase-aware speec
 
 The provided figure illustrates the speech enhancement for Babble noise.
 <br/>
-![Babble_Noise](supplementary_material/graphs/Babble_Noise.png)
+![Babble_Noise](supplementary_material/Babble_Noise.png)
 
 ## Table of Contents
 
