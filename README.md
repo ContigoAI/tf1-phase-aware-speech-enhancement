@@ -1,6 +1,6 @@
 # Phase-Aware Speech Enhancement with TensorFlow 1.15
 
-This repository contains a TensorFlow 1.15 implementation of a phase-aware speech enhancement model. The model, based on a 3D Convolutional Neural Network (CNN) U-Net architecture, is designed to enhance the quality of speech signals.
+This repository contains a TensorFlow 1.15 implementation of a phase-aware speech enhancement model. The model, based on a 3D U-Net architecture, is designed to enhance the quality of speech signals.
 Paper url - https://openreview.net/pdf?id=SkeRTsAcYm.
 
 ## Table of Contents
@@ -13,7 +13,7 @@ Paper url - https://openreview.net/pdf?id=SkeRTsAcYm.
 
 ## Overview
 
-The core architecture utilizes a 3D CNN U-Net to process magnitude spectrograms of noisy speech signals, preserving both magnitude and phase information for improved speech quality.
+The core architecture utilizes a U-Net with complex convolutions to process magnitude spectrograms of noisy speech signals, preserving both magnitude and phase information for improved speech quality.
 
 The model suggests the use of Weighted Spectral Distance Ratio (WSDR) loss during training for enhanced performance in optimizing the model for speech enhancement tasks.
 
@@ -25,8 +25,7 @@ Ensure you have the following dependencies installed:
 - TensorFlow 1.15
 - Librosa
 - NumPy
-- SciPy
-- 1.1.0
+- SciPy 1.1.0
 - sklearn
 
 ## Preparation
